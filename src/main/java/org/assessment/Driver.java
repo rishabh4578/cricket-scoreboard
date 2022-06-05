@@ -14,10 +14,15 @@ public class Driver {
         MatchState matchState = MatchState.OVER_CONCLUDED;
         while (!matchState.equals(MatchState.MATCH_CONCLUDED)) {
             if (matchState.equals(MatchState.OVER_CONCLUDED) || matchState.equals(MatchState.INNING_CONCLUDED)) {
+
+                if (matchState.equals(MatchState.INNING_CONCLUDED))
+                    getAdditionalInfo(match, false, sc);
+
                 setBowler(match, sc);
                 matchState = MatchState.OTHER;
                 System.out.println("Enter ball type and press enter. Supported ball types: " + Ball.getSupportedBallTypes());
             }
+
             String ip = sc.nextLine();
             if ("exit".equals(ip)) return;
             Ball ball = Ball.getByDisplayCode(ip);
@@ -28,6 +33,10 @@ public class Driver {
             matchState = match.registerBall(ball);
         }
 
+        getAdditionalInfo(match, true, sc);
+    }
+
+    private static void getAdditionalInfo(Match match, boolean matchConcluded, Scanner sc) {
         System.out.println();
         System.out.println("------------------------");
         System.out.println("ADDITIONAL INFO COMMANDS");
@@ -37,25 +46,29 @@ public class Driver {
         help.append("* Print match result board: matchResultBoard").append(newLine)
                 .append("* Print team scoreboard: teamScoreBoard").append(newLine)
                 .append("* Print player summary: playerSummary").append(newLine)
-                .append("* Help: help").append(newLine)
-                .append("* Exit: exit");
+                .append("* Help: help").append(newLine);
+        if (!matchConcluded)
+            help.append("* Continue to next inning: continue").append(newLine);
+        help.append("* Exit: exit");
         System.out.println(help);
         while (true) {
             String ip = sc.nextLine();
-            if ("exit".equals(ip)) return;
+            if ("exit".equals(ip)) System.exit(0);
             else if (ip.equals("matchResultBoard")) match.printResultBoard();
             else if (ip.equals("teamScoreBoard")) {
-                System.out.println("Enter team name: ");
+                System.out.println(String.format("Enter team name (%s): ", String.join(", ", match.getTeamNames())));
                 String teamName = sc.nextLine();
                 match.printTeamScoreBoard(teamName);
             } else if (ip.equals("playerSummary")) {
-                System.out.println("Enter team name: ");
+                System.out.println(String.format("Enter team name (%s): ", String.join(", ", match.getTeamNames())));
                 String teamName = sc.nextLine();
-                System.out.println("Enter player name: ");
+                System.out.println(String.format("Enter player name (%s): ", String.join(", ", match.getPlayerNamesForTeam(teamName))));
                 String playerName = sc.nextLine();
                 match.printPlayerSummary(teamName, playerName);
             } else if (ip.equals("help")) {
                 System.out.println(help);
+            } else if (!matchConcluded && ip.equals("continue")) {
+                break;
             } else {
                 System.out.println("Command not identified. Please try again.");
             }

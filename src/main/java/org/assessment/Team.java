@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Team {
@@ -71,10 +72,12 @@ public class Team {
             bowler.checkAndRegisterMaidenOver();
 
         //debugging
-//        System.out.println(String.format("Batsmen: %s %s(%s), %s %s(%s)", players[strikerIdx].getName(),
-//                players[strikerIdx].getScore(), players[strikerIdx].getBallsPlayed(),
-//                players[nonStrikerIdx].getName(), players[nonStrikerIdx].getScore(), players[nonStrikerIdx].getBallsPlayed()));
-//        System.out.println(String.format("Team: %s/%s", teamScore, getWicketsDown()));
+        if (System.getProperty("enableDebugLogs") != null && System.getProperty("enableDebugLogs").equals("on")) {
+            System.out.println(String.format("Batsmen: %s %s(%s), %s %s(%s)", players[strikerIdx].getName(),
+                    players[strikerIdx].getScore(), players[strikerIdx].getBallsPlayed(),
+                    players[nonStrikerIdx].getName(), players[nonStrikerIdx].getScore(), players[nonStrikerIdx].getBallsPlayed()));
+            System.out.println(String.format("Team: %s/%s", teamScore, getWicketsDown()));
+        }
 
         MatchState matchState;
         if (concludeInning) {
@@ -173,5 +176,9 @@ public class Team {
 
     public Player getBowler() {
         return bowler;
+    }
+
+    public String[] getPlayerNames() {
+        return Arrays.stream(players).map(player -> player.getName()).toArray(String[]::new);
     }
 }

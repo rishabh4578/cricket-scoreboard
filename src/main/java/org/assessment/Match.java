@@ -75,6 +75,17 @@ public class Match {
         System.out.println(sb);
     }
 
+    public String[] getTeamNames() {
+        return new String[]{team1.getName(), team2.getName()};
+    }
+
+    public String[] getPlayerNamesForTeam(String teamName) {
+        if (teamInfoMap.containsKey(teamName))
+            return teamInfoMap.get(teamName).getPlayerNames();
+        else System.out.println(String.format("No records found by team name '%s'", teamName));
+        return null;
+    }
+
     public void printTeamScoreBoard(String teamName) {
         if (teamInfoMap.containsKey(teamName))
             teamInfoMap.get(teamName).printScoreBoard();
