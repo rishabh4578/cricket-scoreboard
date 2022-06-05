@@ -43,9 +43,8 @@ public class Driver {
             try {
                 System.out.print(message);
                 String ip = sc.nextLine();
-                assert ip != null && !ip.isBlank();
-                if (takenName != null)
-                    assert !ip.equals(takenName) : String.format("Team name %s is already used", takenName);
+                if (takenName != null && ip.equals(takenName))
+                    throw new Exception(String.format("Team name %s is already used", takenName));
                 return ip;
             } catch (Throwable e) {
                 System.out.println(String.format("%s: %s. Please try again with a valid input.", e.getClass().getSimpleName(), e.getLocalizedMessage()));
@@ -58,11 +57,12 @@ public class Driver {
             try {
                 System.out.print(message);
                 String[] teamPlayerNames = sc.nextLine().split(",");
-                assert Arrays.stream(teamPlayerNames).filter(name -> !name.trim().isEmpty()).distinct().count() == teamSize :
-                        String.format("Enter %s distinct non blank player names", teamSize);
+                if (Arrays.stream(teamPlayerNames).filter(name -> !name.trim().isEmpty()).distinct().count() != teamSize)
+                    throw new Exception(String.format("Enter %s distinct non blank player names", teamSize));
                 if (existingTeamPlayerNames != null) {
                     String commonNames = Arrays.stream(teamPlayerNames).filter(name -> Arrays.stream(existingTeamPlayerNames).toList().contains(name)).collect(Collectors.joining(", "));
-                    assert commonNames.isEmpty() : String.format("Player names [%s] are already taken", commonNames);
+                    if (!commonNames.isEmpty())
+                        throw new Exception(String.format("Player names [%s] are already taken", commonNames));
                 }
                 return teamPlayerNames;
             } catch (Throwable e) {
@@ -76,8 +76,8 @@ public class Driver {
             try {
                 System.out.print(message);
                 int integerInput = Integer.parseInt(sc.nextLine());
-                if (minValue != null)
-                    assert integerInput >= minValue : String.format("A minimum value of %s is required", minValue);
+                if (minValue != null && integerInput < minValue)
+                    throw new Exception(String.format("A minimum value of %s is required", minValue));
                 return integerInput;
             } catch (Throwable e) {
                 System.out.println(String.format("%s: %s. Please try again with a valid input.", e.getClass().getSimpleName(), e.getLocalizedMessage()));
