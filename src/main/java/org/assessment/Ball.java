@@ -7,25 +7,30 @@ import java.util.stream.Collectors;
 
 public enum Ball {
 
-    SINGLE("1", 1, true, true),
-    DOUBLE("2", 2, true, false),
-    TRIPLE("3", 3, true, true),
-    FOUR("4", 4, true, false),
-    SIX("6", 6, true, false),
-    WIDE("WD", 1, false, false),
-    NO_BALL("NB", 1, false, false),
-    WICKET("W", 0, true, false);
+    DOT_BALL("0", 0, 0, true, false, false),
+    SINGLE("1", 1, 1, true, true, false),
+    DOUBLE("2", 2, 2, true, false, false),
+    TRIPLE("3", 3, 3, true, true, false),
+    FOUR("4", 4, 4, true, false, false),
+    SIX("6", 6, 6, true, false, false),
+    WIDE("WD", 1, 0, false, false, true),
+    NO_BALL("NB", 1, 0, false, false, true),
+    WICKET("W", 0, 0, true, false, false);
 
     private String displayCode;
-    private int scoreContribution;
+    private int teamScoreContribution;
+    private int playerScoreContribution;
     private boolean contributesToOver;
     private boolean switchStriker;
+    private boolean isExtra;
 
-    Ball(String displayCode, int scoreContribution, boolean contributesToOver, boolean switchStriker) {
+    Ball(String displayCode, int teamScoreContribution, int playerScoreContribution, boolean contributesToOver, boolean switchStriker, boolean isExtra) {
         this.displayCode = displayCode;
-        this.scoreContribution = scoreContribution;
+        this.teamScoreContribution = teamScoreContribution;
+        this.playerScoreContribution = playerScoreContribution;
         this.contributesToOver = contributesToOver;
         this.switchStriker = switchStriker;
+        this.isExtra = isExtra;
     }
 
     private static Map<String, Ball> map;
@@ -36,8 +41,8 @@ public enum Ball {
             map.put(ball.displayCode, ball);
     }
 
-    public int getScoreContribution() {
-        return scoreContribution;
+    public int getTeamScoreContribution() {
+        return teamScoreContribution;
     }
 
     public boolean isContributesToOver() {
@@ -56,6 +61,14 @@ public enum Ball {
         if (map.containsKey(displayCode.toUpperCase()))
             return map.get(displayCode.toUpperCase());
         return null;
+    }
+
+    public int getPlayerScoreContribution() {
+        return playerScoreContribution;
+    }
+
+    public boolean isExtra() {
+        return isExtra;
     }
 
     public static String getSupportedBallTypes() {

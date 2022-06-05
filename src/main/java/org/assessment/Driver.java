@@ -1,5 +1,6 @@
 package org.assessment;
 
+import java.sql.Struct;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -10,17 +11,67 @@ public class Driver {
         Scanner sc = new Scanner(System.in);
         Match match = setupMatch(sc);
         System.out.println("Type 'exit' and press enter to end the match at any time.");
-        System.out.println("Type ball type and press enter. Supported ball types: " + Ball.getSupportedBallTypes());
-        while (true) {
+        MatchState matchState = MatchState.OVER_CONCLUDED;
+        while (!matchState.equals(MatchState.MATCH_CONCLUDED)) {
+            if (matchState.equals(MatchState.OVER_CONCLUDED) || matchState.equals(MatchState.INNING_CONCLUDED)) {
+                setBowler(match, sc);
+                matchState = MatchState.OTHER;
+                System.out.println("Enter ball type and press enter. Supported ball types: " + Ball.getSupportedBallTypes());
+            }
             String ip = sc.nextLine();
-            if ("exit".equals(ip)) break;
+            if ("exit".equals(ip)) return;
             Ball ball = Ball.getByDisplayCode(ip);
             if (null == ball) {
                 System.out.println("Ball type not recognized. Please try again.");
                 continue;
             }
-            match.registerBall(ball);
+            matchState = match.registerBall(ball);
         }
+
+        System.out.println();
+        System.out.println("------------------------");
+        System.out.println("ADDITIONAL INFO COMMANDS");
+        System.out.println("------------------------");
+        String newLine = "\n";
+        StringBuilder help = new StringBuilder();
+        help.append("* Print match result board: matchResultBoard").append(newLine)
+                .append("* Print team scoreboard: teamScoreBoard").append(newLine)
+                .append("* Print player summary: playerSummary").append(newLine)
+                .append("* Help: help").append(newLine)
+                .append("* Exit: exit");
+        System.out.println(help);
+        while (true) {
+            String ip = sc.nextLine();
+            if ("exit".equals(ip)) return;
+            else if (ip.equals("matchResultBoard")) match.printResultBoard();
+            else if (ip.equals("teamScoreBoard")) {
+                System.out.println("Enter team name: ");
+                String teamName = sc.nextLine();
+                match.printTeamScoreBoard(teamName);
+            } else if (ip.equals("playerSummary")) {
+                System.out.println("Enter team name: ");
+                String teamName = sc.nextLine();
+                System.out.println("Enter player name: ");
+                String playerName = sc.nextLine();
+                match.printPlayerSummary(teamName, playerName);
+            } else if (ip.equals("help")) {
+                System.out.println(help);
+            } else {
+                System.out.println("Command not identified. Please try again.");
+            }
+        }
+    }
+
+    private static void setBowler(Match match, Scanner sc) {
+        boolean bowlerSet = false;
+        System.out.println(String.format("Select a bowler from %s:", match.getBowlingTeam().getName()));
+        while (!bowlerSet) {
+            String playerName = sc.nextLine();
+            bowlerSet = match.setBowler(playerName);
+            if (!bowlerSet)
+                System.out.println("Select a valid player from the bowling team who hasn't bowled the last over.");
+        }
+        System.out.println("Bowler set. Start entering scores.");
     }
 
     private static Match setupMatch(Scanner sc) {
@@ -43,6 +94,8 @@ public class Driver {
             try {
                 System.out.print(message);
                 String ip = sc.nextLine();
+                if (ip.isEmpty())
+                    throw new Exception("Enter a non blank team name");
                 if (takenName != null && ip.equals(takenName))
                     throw new Exception(String.format("Team name %s is already used", takenName));
                 return ip;
